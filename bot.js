@@ -37,4 +37,4 @@ client.on('messageDelete', message => {
 
 
 //Initialize bot by connecting to the server
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.TOKEN);
