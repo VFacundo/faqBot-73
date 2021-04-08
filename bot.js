@@ -17,7 +17,7 @@ client.login(process.env.TOKEN);
 client.on('message', message => {
   if(message.author.bot) return;
   if(message.content === "this"){
-    message.reply(message.content);
+    message.reply(message);
   }
   if(checkCommand(message, "help")){
     message.channel.send("Triggered help Command (Under Const.)");
