@@ -16,6 +16,9 @@ client.login(process.env.TOKEN);
 //Event listener when a user sends a message in the chat
 client.on('message', message => {
   if(message.author.bot) return;
+  if(message.content === "this"){
+    message.reply(message.content);
+  }
   if(checkCommand(message, "help")){
     message.channel.send("Triggered help Command (Under Const.)");
   }
