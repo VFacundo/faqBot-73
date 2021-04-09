@@ -34,10 +34,22 @@ client.on('message', message => {
 
   if(message.author.bot) return;
 
+/*
+  //check if a msg is all uppercase
+  if(isUpperCase(message.content)){
+    const attachment = new Discord.MessageAttachment('!reglas');
+    message.channel.send(`${message.author},`, attachment);
+  }
+*/
   msg = message.content.toLowerCase();
 
   if(msg.includes(EMOJI_GRT)){
     helloReaccion(message,EMOJI_TO_GRT);
+  }
+
+  if(msg.includes("murio") || msg.includes("rip") || msg.includes("muerto")){
+    const attachment = new Discord.MessageAttachment('https://cdn.discordapp.com/emojis/829727739191230504.png');
+    message.channel.send(attachment);
   }
 
   if(checkCommand(message, "help")){
@@ -63,6 +75,10 @@ function helloReaccion(msg, reactEmoji){
 
 function checkCommand(message, commandName){
   return message.content.toLowerCase().startsWith(CMD_PREFIX + commandName);
+}
+
+function isUpperCase(str){
+  return (/^[A-Z]*$/).test(str);
 }
 /*
 client.on('message', msg =>{
