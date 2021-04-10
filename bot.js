@@ -9,6 +9,11 @@ const CMD_PREFIX = ";";
 const EMOJI_GRT = "laws";
 const EMOJI_TO_GRT = "lawS";
 const CHANNEL_INTERVAL = "679561749095383041";
+const REGLAS_CHANNEL =  '-Respeto entre todos \n' +
+                        '- No spam de ningún tipo \n' +
+                        '- No enviar un mensaje completamente en mayúsculas \n' +
+                        '- No spoilers de ningún tipo \n' +
+                        '-No pasar links a no ser que se pidan \n';
 
 var channel_send_inter = "";
 //Event Listener when a user connected to the server
@@ -34,13 +39,18 @@ client.on('message', message => {
 
   if(message.author.bot) return;
 
-/*
+
   //check if a msg is all uppercase
-  if(isUpperCase(message.content)){
-    const attachment = new Discord.MessageAttachment('!reglas');
-    message.channel.send(`${message.author},`, attachment);
+  //firts check if is an image
+  if(!(message.attachments.size>0)){
+    if(isUpperCase(message.content)){
+      const attachment = new Discord.MessageAttachment('!reglas');
+      message.reply("!reglas ;reglas")
+        .then(() => console.log(`Mayus Detected: ${message.author.username}`))
+        .catch(console.error);
+    }
   }
-*/
+
   msg = message.content.toLowerCase();
 
   if(msg.includes(EMOJI_GRT)){
@@ -64,6 +74,12 @@ client.on('message', message => {
       .setColor(0xff0000)
       .setImage(message.author.displayAvatarURL());
     message.reply(embed);
+  }else if(checkCommand(message, "reglas")){
+    const embed = new MessageEmbed()
+      .setTitle('Reglas')
+      .setColor(0xff0000)
+      .setDescription(REGLAS_CHANNEL);
+    message.reply(embed);
   }
 });
 
@@ -78,7 +94,17 @@ function checkCommand(message, commandName){
 }
 
 function isUpperCase(str){
-  return (/^[A-Z]*$/).test(str);
+  var upper = 0, total_Upper = 0;
+  for (var i = 0; i < str.length; i++) {
+    if((/^[A-Z]*$/).test(str[i])){
+      upper++;
+    }
+  }
+  //console.log("Lenght VAR:" +str.length);
+  //console.log("UpperCASE: "+upper);
+  total_Upper = (upper*100)/(str.length);
+  //console.log("%: "+total_Upper);
+  return (total_Upper>=75) ? true : false;
 }
 /*
 client.on('message', msg =>{
