@@ -20,6 +20,10 @@ var channel_send_inter = "";
 client.on('ready' , () => {
   console.log(`Logged in as ${client.user.tag}!`);
 
+  //Set PLAYING Message
+  client.user.setActivity('Path of Exile', { type: 'PLAYING' })
+  .then(presence => console.log(`Activity set to ${presence.activities[0].name}`))
+  .catch(console.error);
   /*
   //Send msg on a interval
   channel_send_inter = client.channels.cache.find(channel => channel.id === CHANNEL_INTERVAL);
