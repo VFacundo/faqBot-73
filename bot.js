@@ -61,7 +61,7 @@ client.on('message', message => {
     helloReaccion(message,EMOJI_TO_GRT);
   }
 
-  if(msg.includes("murio") || msg.includes("rip") || msg.includes("muerto")){
+  if(msg.includes("murio") || msg.includes(" rip ") || msg.includes("muerto") || msg === "rip"){
     const attachment = new Discord.MessageAttachment('https://cdn.discordapp.com/emojis/829727739191230504.png');
     message.channel.send(attachment);
   }
