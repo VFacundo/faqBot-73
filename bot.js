@@ -98,7 +98,7 @@ client.on('message', message => {
         voice_channel.join()
         .then(connection =>{
           console.log("Bot joined to the channel: " + voice_channel.name);
-          const stream = ytdl('https://youtu.be/91v2pbodKNY',{filter : 'audioonly'});
+          const stream = ytdl('https://youtu.be/91v2pbodKNY');
           const dispatcher = connection.play(stream, streamOptions);
         })
 
