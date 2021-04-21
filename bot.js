@@ -84,7 +84,27 @@ client.on('message', message => {
       .setColor(0xff0000)
       .setDescription(REGLAS_CHANNEL);
     message.reply(embed);
+  }else if(checkCommand(message, "play")){
+    //console.log(message.guild.members.cache.get(message.author.id).voice.channel.id);
+    try{
+      var voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
+          voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id);
+
+      if(voice_channel != null){
+        console.log(voice_channel.name + " was found" + "id: "+ voice_channel.type);
+        voice_channel.join()
+        .then(connection =>{
+          console.log("Bot joined to the channel: " + voice_channel.name);
+          const stream = ytdl('https://youtu.be/91v2pbodKNY',{filter : 'audioonly', volume: 0.5});
+          const dispatcher = connection.play(stream, streamOptions);
+        })
+
+      }
+    } catch(e){
+      message.reply("No estas en un canal de Voz");
+    }
   }
+
 });
 
 function helloReaccion(msg, reactEmoji){
@@ -98,7 +118,15 @@ function checkCommand(message, commandName){
 }
 
 function isUpperCase(str){
-  var upper = 0, total_Upper = 0;
+  var upper = 0, total_Upper = 0, arrayPhase;
+
+  arrayPhase = str.split(" ");
+
+  if(arrayPhase.length <= 1){
+    //no se considera mayus, exit
+    return false;
+  }
+
   for (var i = 0; i < str.length; i++) {
     if((/^[A-Z]*$/).test(str[i])){
       upper++;
