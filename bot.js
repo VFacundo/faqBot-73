@@ -15,6 +15,9 @@ const REGLAS_CHANNEL =  '-Respeto entre todos \n' +
                         '- No spoilers de ningún tipo \n' +
                         '-No pasar links a no ser que se pidan \n';
 
+const ytdl = require('ytdl-core');
+const streamOptions = {seek: 0, volume: 1};
+
 var channel_send_inter = "";
 //Event Listener when a user connected to the server
 client.on('ready' , () => {
@@ -95,7 +98,7 @@ client.on('message', message => {
         voice_channel.join()
         .then(connection =>{
           console.log("Bot joined to the channel: " + voice_channel.name);
-          const stream = ytdl('https://youtu.be/91v2pbodKNY',{filter : 'audioonly', volume: 0.5});
+          const stream = ytdl('https://youtu.be/91v2pbodKNY',{filter : 'audioonly'});
           const dispatcher = connection.play(stream, streamOptions);
         })
 
