@@ -42,9 +42,8 @@ client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
   //console.log(`${user.username} is typing in ${channel.name}`)
-  if(user.username == 'FAQLXXIII'){
-    channel.send("works");
-    console.log("es faq");
+  if(user.username == 'Xiampa'){
+    channel.send("Atencion, Xiampa va a escribir!");
   }
 });
 
