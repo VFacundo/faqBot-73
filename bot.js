@@ -41,8 +41,10 @@ client.on('ready' , () => {
 client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
-  console.log(`${user.username} is typing in ${channel.name}`)
-  if(user.username == 'FAQLXXIII'){
+  //console.log(`${user.username} is typing in ${channel.name}`)
+  if(user.username == 'Xiampa'){
+    msg = new Discord.message(client);
+    msg.channel.send("works");
     console.log("es faq");
   }
 });
