@@ -42,6 +42,9 @@ client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
   console.log(`${user.username} is typing in ${channel.name}`)
+  if(user.username == 'FAQLXXIII'){
+    console.log("es faq");
+  }
 });
 
 //Event listener when a user sends a message in the chat
