@@ -18,7 +18,8 @@ const REGLAS_CHANNEL =  '-Respeto entre todos \n' +
 const ytdl = require('ytdl-core');
 const streamOptions = {seek: 0, volume: 1};
 
-var channel_send_inter = "";
+var channel_send_inter = "",
+    flagTyping = true;
 //Event Listener when a user connected to the server
 client.on('ready' , () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -42,11 +43,14 @@ client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
   //console.log(`${user.username} is typing in ${channel.name}`)
+  if((user.username == 'FAQLXXIII') && (flagTyping)){
+    channel.send("Atención, Xiampa va a escribir!");
+    flagTyping = false;
+  }
   setTimeout(function(){
-    if(user.username == 'FAQLXXIII'){
-      channel.send("Atención, Xiampa va a escribir!");
-    }
-  },3600000);
+    flagTyping = true;
+    console.log("flagTyping = true");
+  },10000);
   console.log("en timeout");
 });
 
