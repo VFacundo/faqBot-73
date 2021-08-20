@@ -40,12 +40,21 @@ client.on('ready' , () => {
 //Initialize bot by connecting to the server
 client.login(process.env.TOKEN);
 
+client.on('typingStart', (channel, user) => {
+  console.log(`${user.username} is typing in ${channel.name}`)
+});
+
 //Event listener when a user sends a message in the chat
 client.on('message', message => {
   var msg;
 
+// do bot typing
+/*
+  if(message.channel.startTyping()){
+    console.log("hola");
+  }
+*/
   if(message.author.bot) return;
-
 
   //check if a msg is all uppercase
   //firts check if is an image
@@ -60,7 +69,7 @@ client.on('message', message => {
 
   msg = message.content.toLowerCase();
 
-  if(msg.includes(EMOJI_GRT)){
+  if(msg.includes(EMOJI_GRT) || msg.includes("buenas") || msg.includes("buenos dias") || msg.includes("buen dia") || msg.includes("hola") || msg.includes("hello")){
     helloReaccion(message,EMOJI_TO_GRT);
   }
 
