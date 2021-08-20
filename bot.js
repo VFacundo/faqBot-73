@@ -114,13 +114,20 @@ client.on('message', message => {
       var voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
           voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id);
 
+      let args = message.content.split(" ");
+      let url = arsg[1];
+
       if(voice_channel != null){
         console.log(voice_channel.name + " was found" + "id: "+ voice_channel.type);
         voice_channel.join()
         .then(connection =>{
           console.log("Bot joined to the channel: " + voice_channel.name);
-          const stream = ytdl('https://youtu.be/91v2pbodKNY', { quality: 'highestaudio' });
+          const stream = ytdl(url, { quality: 'highestaudio' });
           const dispatcher = connection.play(stream, streamOptions);
+
+          dispatcher.on('end', () => {
+            voice_channel.leave();
+          })
         })
 
       }
