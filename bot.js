@@ -47,11 +47,12 @@ client.on('typingStart', (channel, user) => {
     channel.send("Atención, Xiampa va a escribir!");
     flagTyping = false;
   }
+  if(!flagTyping){
+    console.log("Typing en timeout");
+  }
   setTimeout(function(){
     flagTyping = true;
-    console.log("flagTyping = true");
-  },10000);
-  console.log("en timeout");
+  },3600000);
 });
 
 //Event listener when a user sends a message in the chat
