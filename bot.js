@@ -42,9 +42,12 @@ client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
   //console.log(`${user.username} is typing in ${channel.name}`)
-  if(user.username == 'Xiampa'){
-    channel.send("Atencion, Xiampa va a escribir!");
-  }
+  setTimeout(function(){
+    if(user.username == 'FAQLXXIII'){
+      channel.send("Atención, Xiampa va a escribir!");
+    }
+  },3600000);
+  console.log("en timeout");
 });
 
 //Event listener when a user sends a message in the chat
@@ -84,6 +87,7 @@ client.on('message', message => {
   if(checkCommand(message, "help")){
     message.channel.send("Triggered help Command (Under Const.)");
   }
+
   else if(checkCommand(message, "roles")){
     message.channel.send("Server Roles.");
   }
@@ -153,6 +157,7 @@ function isUpperCase(str){
   //console.log("%: "+total_Upper);
   return (total_Upper>=75) ? true : false;
 }
+
 /*
 client.on('message', msg =>{
   if(msg.content === 'ping') {
