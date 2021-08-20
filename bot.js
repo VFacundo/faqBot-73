@@ -43,7 +43,7 @@ client.login(process.env.TOKEN);
 
 client.on('typingStart', (channel, user) => {
   //console.log(`${user.username} is typing in ${channel.name}`)
-  if((user.username == 'FAQLXXIII') && (flagTyping)){
+  if((user.username == 'Xiampa') && (flagTyping)){
     channel.send("Atención, Xiampa va a escribir!");
     flagTyping = false;
   }
@@ -112,11 +112,10 @@ client.on('message', message => {
     //console.log(message.guild.members.cache.get(message.author.id).voice.channel.id);
     try{
       var voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
-          voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id);
-
-      let args = message.content.split(" ");
-      let url = arsg[1];
-
+          voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id),
+          args = message.content.split(" "),
+          url = args[1];
+      console.log("url");
       if(voice_channel != null){
         console.log(voice_channel.name + " was found" + "id: "+ voice_channel.type);
         voice_channel.join()
@@ -132,7 +131,8 @@ client.on('message', message => {
 
       }
     } catch(e){
-      message.reply("No estas en un canal de Voz");
+      message.reply("No estas en un canal de Voz ");
+      console.log(e);
     }
   }
 
