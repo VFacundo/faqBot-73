@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 //Run dotenv
 require('dotenv').config();
 
@@ -56,7 +57,7 @@ client.on('typingStart', (channel, user) => {
 });
 
 //Event listener when a user sends a message in the chat
-client.on('message', message => {
+client.on('message', async message => {
   var msg;
 
 // do bot typing
@@ -121,8 +122,9 @@ client.on('message', message => {
         voice_channel.join()
         .then(connection =>{
           console.log("Bot joined to the channel: " + voice_channel.name);
+          const dispatcher = connection.playFile('/media/bot_saludo.mp3');
           const stream = ytdl(url, { quality: 'highestaudio' });
-          const dispatcher = connection.play(stream, streamOptions);
+           dispatcher = connection.play(stream, streamOptions);
 
           dispatcher.on('end', () => {
             voice_channel.leave();
@@ -135,7 +137,6 @@ client.on('message', message => {
       console.log(e);
     }
   }
-
 });
 
 function helloReaccion(msg, reactEmoji){
