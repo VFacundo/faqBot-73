@@ -152,11 +152,14 @@ if(checkCommand(message, "queue")){
   if(ytdl.validateURL(url)){
     console.log("Valid URL!");
     var flag = musicUrls.some(element => element === url);
-    
+
     if(!flag){
       musicUrls.push(url);
+      console.log("voice channel = " + voice_channel.connection);
+      console.log(client.voice.connections);
       if(voice_channel != null){
-        if(voice_channel.connection){
+        //if(voice_channel.connection){
+        if(client.voice.connections == message.member.voice.channel){
           console.log("Connection Exists.");
           const embed = new Discord.RichEmbed();
           embed.setAuthor(client.user.username, client.user.displayAvatarURL);
