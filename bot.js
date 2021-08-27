@@ -151,7 +151,10 @@ if(checkCommand(message, "queue")){
 
   if(ytdl.validateURL(url)){
     console.log("Valid URL!");
-    var flag = musicUrls.some(element => element === url);
+    var flag = false;
+    if(musicUrls != null ){
+      flag = musicUrls.some(element => element === url);
+    }
     if(!flag){
       musicUrls.push(url);
       if(voice_channel != null){
