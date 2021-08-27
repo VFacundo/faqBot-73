@@ -20,7 +20,8 @@ const ytdl = require('ytdl-core');
 const streamOptions = {seek: 0, volume: 1};
 
 var channel_send_inter = "",
-    flagTyping = true;
+    flagTyping = true,
+    musicUrls;
 //Event Listener when a user connected to the server
 client.on('ready' , () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -102,14 +103,19 @@ client.on('message', async message => {
       .setTitle('Avatar de '+ message.author.tag)
       .setColor(0xff0000)
       .setImage(message.author.displayAvatarURL());
-    message.reply(embed);
+    message.channel.send(embed);
+
   }else if(checkCommand(message, "reglas")){
     const embed = new MessageEmbed()
       .setTitle('Reglas')
       .setColor(0xff0000)
       .setDescription(REGLAS_CHANNEL);
-    message.reply(embed);
-  }else if(checkCommand(message, "play")){
+    message.channel.send(embed);
+  }
+
+///////////////////// MUSIC START ////////////////////////////
+
+  if(checkCommand(message, "play")){
     //console.log(message.guild.members.cache.get(message.author.id).voice.channel.id);
     try{
       var voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
@@ -137,19 +143,75 @@ client.on('message', async message => {
       console.log(e);
     }
   }
+
+if(checkCommand(message, "queue")){
+  let args = message.content.split(" ");
+  let url = args[1];
+  let voice_channel = getVoiceChannel(message);
+
+  if(ytdl.validateURL(url)){
+    console.log("Valid URL!");
+    var flag = musicUrls.some(element => element === url);
+    if(!flag){
+      musicUrls.push(url);
+      if(voice_channel != null){
+        if(voice_channel.connection){
+          console.log("Connection Exists.");
+          const embed = new Discord.RichEmbed();
+          embed.setAuthor(client.user.username, client.user.displayAvatarURL);
+          embed.setDescription("Successfully added to the queue!");
+          message.channel.send(embed);
+        }else{
+            try{
+              const voiceConnection = await voice_channel.join();
+              await playSong(message.channel, voiceConnection, voice_channel);
+              }catch(ex){
+                console.log(ex);
+              }
+            }
+          }
+        }
+      }
+}
+///////////////////// MUSIC END ////////////////////////////
 });
 
-function helloReaccion(msg, reactEmoji){
+//////////////////// FUNCTIONS ///////////////////////////
+function getVoiceChannel(message){//Obtain current voice channel from user that invokes music bot
+  let voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
+  let voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id);
+
+return voice_channel;
+}
+
+async function playSong(messageChannel, voiceConnection, voice_channel){//Play a song from the queue after 5s play next
+  const stream = ytdl(musicUrls[0], { quality: 'highestaudio' });
+  const dispatcher = voiceConnection.play(stream, streamOptions);
+
+  dispatcher.on('end', () => {
+    musicUrls.shift();
+
+    if(musicUrls.lenght == 0)
+      voice_channel.leave();
+      else{
+        setTimeout(() =>{
+            playSong(messageChannel, voiceConnection, voice_channel);
+        },5000);
+      }
+  })
+}
+
+function helloReaccion(msg, reactEmoji){//Add a greeting emoji
   var emojiId;
   emojiId = msg.guild.emojis.cache.find(emoji => emoji.name == reactEmoji);
   msg.react(emojiId.id);
 }
 
-function checkCommand(message, commandName){
+function checkCommand(message, commandName){//Check if a msg is a command w/ prefix
   return message.content.toLowerCase().startsWith(CMD_PREFIX + commandName);
 }
 
-function isUpperCase(str){
+function isUpperCase(str){//check if a msg if fully mayus
   var upper = 0, total_Upper = 0, arrayPhase;
 
   arrayPhase = str.split(" ");
