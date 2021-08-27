@@ -21,7 +21,7 @@ const streamOptions = {seek: 0, volume: 1};
 
 var channel_send_inter = "",
     flagTyping = true,
-    musicUrls;
+    musicUrls = [];
 //Event Listener when a user connected to the server
 client.on('ready' , () => {
   console.log(`Logged in as ${client.user.tag}!`);
@@ -151,10 +151,8 @@ if(checkCommand(message, "queue")){
 
   if(ytdl.validateURL(url)){
     console.log("Valid URL!");
-    var flag = false;
-    if(musicUrls != null ){
-      flag = musicUrls.some(element => element === url);
-    }
+    var flag = musicUrls.some(element => element === url);
+    
     if(!flag){
       musicUrls.push(url);
       if(voice_channel != null){
