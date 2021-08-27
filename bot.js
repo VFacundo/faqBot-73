@@ -171,6 +171,7 @@ function isUpperCase(str){
   return (total_Upper>=75) ? true : false;
 }
 
+
 /*
 client.on('message', msg =>{
   if(msg.content === 'ping') {
