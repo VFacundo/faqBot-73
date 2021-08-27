@@ -122,7 +122,7 @@ client.on('message', async message => {
         voice_channel.join()
         .then(connection =>{
           console.log("Bot joined to the channel: " + voice_channel.name);
-          const dispatcher = connection.playFile('/media/bot_saludo.mp3');
+          const dispatcher = connection.play('/media/bot_saludo.mp3');
           const stream = ytdl(url, { quality: 'highestaudio' });
            dispatcher = connection.play(stream, streamOptions);
 
