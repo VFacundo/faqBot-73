@@ -1,0 +1,487 @@
+#!/usr/bin/env node
+//Run dotenv
+require('dotenv').config();
+
+//Libraries-
+const Discord = require('discord.js');
+const client = new Discord.Client();
+const { Client, MessageEmbed, Permissions, MessageAttachment} = require('discord.js');
+const CMD_PREFIX = ";";
+const EMOJI_GRT = "laws";
+const EMOJI_TO_GRT = "lawS";
+const CHANNEL_INTERVAL = "679561749095383041";
+const REGLAS_CHANNEL =  '-Respeto entre todos \n' +
+                        '- No spam de ningún tipo \n' +
+                        '- No enviar un mensaje completamente en mayúsculas \n' +
+                        '- No spoilers de ningún tipo \n' +
+                        '-No pasar links a no ser que se pidan \n';
+
+const ytdl = require('ytdl-core');
+const ytsr = require('ytsr');
+const streamOptions = {seek: 0, volume: 1};
+const axios = require('axios');
+const request = require('request');
+const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
+const JIMP = require('jimp');
+
+var channel_send_inter = "",
+    flagTyping = true,
+    musicUrls = [];
+//Event Listener when a user connected to the server
+client.on('ready' , () => {
+  console.log(`Logged in as ${client.user.tag}!`);
+
+  //Set PLAYING Message
+  client.user.setActivity('Path of Exile', { type: 'PLAYING' })
+  .then(presence => console.log(`Activity set to ${presence.activities[0].name}`))
+  .catch(console.error);
+  /*
+  //Send msg on a interval
+  channel_send_inter = client.channels.cache.find(channel => channel.id === CHANNEL_INTERVAL);
+  setInterval(() => {
+    channel_send_inter.send("Message sent in an interval");
+  },5000000);
+ ///////////
+ */
+});
+
+//Initialize bot by connecting to the server
+client.login(process.env.TOKEN);
+
+client.on('typingStart', (channel, user) => {
+  //console.log(`${user.username} is typing in ${channel.name}`)
+  if((user.username == 'Xiampa') && (flagTyping)){
+    channel.send("Atención, Xiampa va a escribir!");
+    flagTyping = false;
+  }
+  if(!flagTyping){
+    console.log("Typing en timeout");
+  }
+  setTimeout(function(){
+    flagTyping = true;
+  },3600000);
+});
+
+/*
+//Detects if a user ghost typing
+client.on('typingStart', async (channel, user) =>{
+  var flagGhosting = true;;
+  //channel.send("...");}
+  console.log("1- "+user.username +" is typing..");
+  client.on('message', message => {
+    console.log("2- incoming message from: "+message.author.username);
+    if(message.author.id == user.id){
+      //Mando un mensaje...
+      flagGhosting = false;
+      console.log("2.1- after typing "+user.username+" sends a message");
+    }
+  });
+  setTimeout(function(){
+    if(flagGhosting){
+    //  channel.send("....");
+      console.log("2.2- "+user.username+" is ghosting");
+    }
+  },10000);
+});
+*/
+//Event listener when a user sends a message in the chat
+client.on('message', async message => {
+  var msg;
+
+// do bot typing
+/*
+  if(message.channel.startTyping()){
+    console.log("hola");
+  }
+*/
+  if(message.author.bot) return;
+
+  //check if a msg is all uppercase
+  //firts check if is an image
+  if(!(message.attachments.size>0)){
+    if(isUpperCase(message.content)){
+      const attachment = new Discord.MessageAttachment('!reglas');
+      message.reply("!reglas ;reglas")
+        .then(() => console.log(`Mayus Detected: ${message.author.username}`))
+        .catch(console.error);
+    }
+  }
+
+  msg = message.content.toLowerCase();
+
+  if(msg.includes(EMOJI_GRT) || msg.includes("buenas") || msg.includes("buenos dias") || msg.includes("buen dia") || msg.includes("hola") || msg.includes("hello")){
+    helloReaccion(message,EMOJI_TO_GRT);
+  }
+
+  if(msg.includes("murio") || msg.includes(" rip ") || msg.includes("muerto") || msg === "rip"){
+    const attachment = new Discord.MessageAttachment('https://cdn.discordapp.com/emojis/829727739191230504.png');
+    message.channel.send(attachment);
+  }
+
+  if(checkCommand(message, "help")){
+    message.channel.send("Triggered help Command (Under Const.)");
+  }
+
+  else if(checkCommand(message, "roles")){
+    message.channel.send("Server Roles.");
+  }
+  else if(checkCommand(message, "avatar")){
+    const embed = new MessageEmbed()
+      .setTitle('Avatar de '+ message.author.tag)
+      .setColor(0xff0000)
+      .setImage(message.author.displayAvatarURL());
+    message.channel.send(embed);
+
+  }else if(checkCommand(message, "reglas")){
+    const embed = new MessageEmbed()
+      .setTitle('Reglas')
+      .setColor(0xff0000)
+      .setDescription(REGLAS_CHANNEL);
+    message.channel.send(embed);
+  }
+
+///////////////////// MUSIC START ////////////////////////////
+  if(checkCommand(message, "buscar")){
+    const searchResults = await ytsr(message.content);
+    let videoResult = searchResults['items'][0];
+    //console.log(searchResults['items'][0]);
+    const embed = new MessageEmbed()
+      .setTitle(videoResult['title'])
+      .setURL(videoResult['url'])
+      .setThumbnail(videoResult['bestThumbnail']['url'])
+      .setColor(0xff0000)
+      //.addField('Compra: '+obj.compra, '---------',false)
+      //.addField('Venta: '+obj.venta, '---------',false)
+      //.addField('Variacion: '+obj.variacion, '---------',false)
+    message.channel.send(embed);
+  }
+
+
+  if(checkCommand(message, "simpleplay")){
+    //console.log(message.guild.members.cache.get(message.author.id).voice.channel.id);
+    try{
+      message.delete();
+    }catch(e){
+      console.log('ERROR: ' + e);
+    }
+    try{
+      var voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
+          voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id),
+          args = message.content.split(" "),
+          url = args[1];
+      console.log("url");
+      if(voice_channel != null){
+        console.log(voice_channel.name + " was found" + "id: "+ voice_channel.type);
+        voice_channel.join()
+        .then(connection =>{
+          console.log("Bot joined to the channel: " + voice_channel.name);
+          let dispatcher = connection.play('/media/bot_saludo.mp3');
+          const stream = ytdl(url, { quality: 'highestaudio' });
+           dispatcher = connection.play(stream, streamOptions);
+
+          dispatcher.on('end', () => {
+            voice_channel.leave();
+          })
+        })
+
+      }
+    } catch(e){
+      message.reply("No estas en un canal de Voz ");
+      console.log(e);
+    }
+  }
+
+if(checkCommand(message, "play")){
+  let args = message.content.split(" ");
+  let url = args[1];
+  let voice_channel = getVoiceChannel(message);
+
+  try{
+    message.delete();
+  }catch(e){
+    console.log('ERROR: ' + e);
+  }
+
+  if(ytdl.validateURL(url)){
+    console.log("Valid URL!");
+    var flag = musicUrls.some(element => element === url);
+
+    if(!flag){
+      musicUrls.push(url);
+      //songInfo(url,message,'Playing..');
+      let isConnectedToVoice = false;
+      //console.log("voice channel = " + voice_channel);
+      //console.log(client.voice.connections);
+      //for(let [key,value] of client.voice.connections){
+      //  console.log('KEY: ' + key);
+      //}
+      client.voice.connections.forEach(function(value, key) {
+        if(value['channel'] == voice_channel){
+          isConnectedToVoice = true;
+          console.log("The Bot is playing in this Channel " + voice_channel);
+        }
+      });
+      if(voice_channel != null){
+          //if(voice_channel.connection){
+        if(isConnectedToVoice){
+          songInfo(url,message,"Successfully added to the queue!");
+        }else{
+          songInfo(url,message,'Playing..');
+            try{
+              const voiceConnection = await voice_channel.join();
+              await playSong(message.channel, voiceConnection, voice_channel);
+            }catch(ex){
+              console.log(ex);
+            }
+        }
+      }else {
+        message.reply('Please join to a voice channel!');
+      }
+    }
+  }else {
+    message.reply('not valid URL!');
+  }
+}
+///////////////////// MUSIC END ////////////////////////////
+if(checkCommand(message, "say")){
+  let args = message.content.split(" "); // ;say 12345644 Hola
+  let channel_id = args[1];
+  let msg = "";
+  for (var i = 2; i < args.length; i++) {
+    msg += args[i] + " ";
+  }
+  let findChannel = client.channels.cache.find(channel => channel.id === channel_id);
+  findChannel.send(msg);
+}
+
+if(checkCommand(message, "dolar")){
+    let url = "https://mercados.ambito.com//dolar/informal/variacion";
+    try {
+      const browser = await puppeteer.launch({headless:true});
+      const page = await browser.newPage();
+      await page.goto('https://mercados.ambito.com//dolar/informal/variacion', {waitUntil: 'load'});
+      //const result = await page.content(); Return everything
+      const result = await page.$eval('pre', el => el.textContent);
+      //console.log(result);
+      const obj = JSON.parse(result);
+      //console.log("compra "+obj.compra);
+
+      const embed = new MessageEmbed()
+        .setTitle('DOLAR BLUE')
+        .setURL('https://www.ambito.com/contenidos/dolar.html')
+        .setThumbnail('https://www.ambito.com/css-custom/239/images/up.svg')
+        .setColor(0xff0000)
+        .addField('Compra: '+obj.compra, '---------',false)
+        .addField('Venta: '+obj.venta, '---------',false)
+        .addField('Variacion: '+obj.variacion, '---------',false)
+      message.channel.send(embed);
+        } catch (e) {
+            console.log(e);
+    }
+
+}
+
+if(checkCommand(message, "deletelast")){
+  if(message.member.permissions.has(Permissions.FLAGS.MANAGE_MESSAGES)){
+    let args = message.content.split(" ") //;deletelast 10
+    let msgQuantity = parseInt(args[1]);
+    if(msgQuantity>=100){
+      msgQuantity = 99;
+    }
+
+    try {
+      async function clear(){
+        message.delete();
+        //const fetched = await message.channel.fetch({limit: 3});
+        await message.channel.bulkDelete(msgQuantity+1);
+      }
+      clear();
+    }catch (e) {
+      console.log("ERROR DELETELAST: "+ e);
+    }
+  }else{
+    message.reply('No tienes permisos para realizar esta accion.')
+  }
+}
+
+if(checkCommand(message, "navidad")){
+  JIMP.read(message.author.displayAvatarURL({format:'png'}))
+    .then(image => {
+      JIMP.read('./media/avatarImg/hat.png')
+        .then(hat => {
+          image.composite(hat,0,0);
+          let urlSave = "media/avatarImg/" + message.author + ".png";
+          image.writeAsync(urlSave);
+
+          const attachment = new Discord
+                          .MessageAttachment(urlSave, message.author + ".png");
+          const embed = new Discord.MessageEmbed()
+           .setTitle('Feliz Navidad!')
+           .attachFiles(attachment)
+           .setImage('attachment://'+ message.author +'.png');
+
+          message.channel.send({embed});
+        })
+      /*
+      image.sepia();
+      //image.write('../faqBot-73/media/avatarImg/test.png');
+      //image.write('/usr/local/bin/bot/faqBot-73/media/avatarImg/test.png');
+      image.writeAsync(`media/avatarImg/test2.png`);
+      console.log("FINISH");
+
+      const attachment = new Discord
+                      .MessageAttachment('./media/avatarImg/test2.png', 'test2.png');
+      const embed = new Discord.MessageEmbed()
+       .setTitle('Wicked Sweet Title')
+       .attachFiles(attachment)
+       .setImage('attachment://test2.png');
+
+      message.channel.send({embed});
+      */
+      //image.writeAsync('../faqBot-73/media/avatarImg/test.png');
+    })
+    .catch(err => {
+      console.log("ERROR JIMP" + err);
+    });
+}
+
+});
+
+//////////////////// FUNCTIONS ///////////////////////////
+function findKey(obj, key,result) {
+  for ([k, v] of Object.entries(obj)){
+      //if (k == key) return v
+      if(k == key){
+        //console.log(v);
+        result.push(v);
+      }
+      if (typeof v === 'object' &&  v !== null ){
+          let found = findKey(v, key,result)
+      }
+  }
+  return result;
+}
+
+function getNames(obj, key) {
+  for (key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if ("object" == typeof(obj[key])) {
+        console.log("RECUR");
+        getNames(obj[key], name);
+      } else if (key == name) {
+        //obj_result.push(obj[key]);
+        console.log("RESULTADO: "+obj[key]);
+      }
+    }
+  }
+}
+
+async function songInfo(url,message,description){
+  const info = await ytdl.getBasicInfo(url);
+
+  const embed = new MessageEmbed()
+    .setColor(0xff0000)
+    //.setDescription(description)
+    .setTitle(info.videoDetails.title)
+    .setURL(url)
+    .setDescription("Author: " + info.videoDetails.author.name)
+    .setTimestamp()
+    .setFooter(description, 'https://i.imgur.com/AfFp7pu.png');
+  message.channel.send(embed);
+}
+
+function getVoiceChannel(message){//Obtain current voice channel from user that invokes music bot
+  let voice_channel = null;
+  try {
+    let voice_channel_id = message.guild.members.cache.get(message.author.id).voice.channel.id;
+    voice_channel = message.guild.channels.cache.find(channel => channel.id === voice_channel_id);
+  } catch (e) {
+    console.log('User is not in a VoiceChannel');
+  }
+
+return voice_channel;
+}
+
+async function playSong(messageChannel, voiceConnection, voice_channel){//Play a song from the queue after 5s play next
+  const stream = ytdl(musicUrls[0], { quality: 'highestaudio',filter:'audioonly' });
+  const dispatcher = voiceConnection.play(stream, streamOptions);
+
+  dispatcher.on('finish', () => {
+    musicUrls.shift();//Remove first element from array of songs
+  /*
+  ytdl(youtube_url)
+  .on('info', (info) => {
+    console.log(info.title); // the video title
+  });
+  */
+    if(musicUrls.length == 0){
+      voice_channel.leave();
+      console.log("LEAVE MUSIC CHANNEL: " + voice_channel);
+    }
+      else{
+        setTimeout(() =>{
+            playSong(messageChannel, voiceConnection, voice_channel);
+        },5000);//wait 5sec and play next song
+      }
+  })
+}
+
+function helloReaccion(msg, reactEmoji){//Add a greeting emoji
+  var emojiId;
+  emojiId = msg.guild.emojis.cache.find(emoji => emoji.name == reactEmoji);
+  msg.react(emojiId.id);
+}
+
+function checkCommand(message, commandName){//Check if a msg is a command w/ prefix
+  return message.content.toLowerCase().startsWith(CMD_PREFIX + commandName);
+}
+
+function isUpperCase(str){//check if a msg if fully mayus
+  var upper = 0, total_Upper = 0, arrayPhase;
+
+  arrayPhase = str.split(" ");
+
+  if(arrayPhase.length <= 1){
+    //no se considera mayus, exit
+    return false;
+  }
+
+  for (var i = 0; i < str.length; i++) {
+    if((/^[A-Z]*$/).test(str[i])){
+      upper++;
+    }
+  }
+  //console.log("Lenght VAR:" +str.length);
+  //console.log("UpperCASE: "+upper);
+  total_Upper = (upper*100)/(str.length);
+  //console.log("%: "+total_Upper);
+  return (total_Upper>=75) ? true : false;
+}
+
+
+/*
+client.on('message', msg =>{
+  if(msg.content === 'ping') {
+    msg.reply('pong');
+  }
+  if(msg.content == 'cual es mi avatar?'){
+    msg.reply(msg.author.displayAvatarURL());
+  }
+});
+
+client.on('messageDelete', message => {
+  if(!message.partial) {
+    const channel = client.channels.cache.get('679561749095383041');
+    if(channel){
+      const embed = new MessageEmbed()
+          .setTitle('Deleted Message')
+          .addField('Author', `${message.author.tag} (${message.author.id})`)
+          .addField('Channel', `${message.channel.name} (${message.channel.id})`)
+          .setDescription(message.content)
+          .setTimestamp();
+      channel.send(embed);
+    }
+  }
+})
+*/

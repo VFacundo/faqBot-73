@@ -12,8 +12,18 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/opus": "^0.5.0",
+    "axios": "^0.23.0",
+    "cheerio": "^1.0.0-rc.10",
     "discord.js": "^12.3.1",
+    "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",
-    "ytdl-core": "^4.5.0"
+    "ffmpeg-static": "^4.4.0",
+    "jimp": "^0.16.1",
+    "puppeteer": "^10.4.0",
+    "puppeteer-core": "^10.4.0",
+    "request": "^2.88.2",
+    "ytdl-core": "^4.11.0",
+    "ytpl": "^2.2.3",
+    "ytsr": "^3.5.3"
   }
 }
